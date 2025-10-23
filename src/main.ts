@@ -24,9 +24,14 @@ const undoButton = document.createElement("button");
 undoButton.innerHTML = "undo";
 document.body.appendChild(undoButton);
 
+//redo button
+const redoButton = document.createElement("button");
+redoButton.innerHTML = "redo";
+document.body.appendChild(redoButton);
+
 //line variables
 const lines: Array<Array<Cursor>> = [];
-//const redoLines = [];
+const redoLines: Array<Array<Cursor>> = [];
 
 let currentLine: Array<Cursor> = [];
 
@@ -43,6 +48,28 @@ clearButton.addEventListener("click", () => {
   if (ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     lines.length = 0;
+    redoLines.length = 0;
+  }
+});
+
+undoButton.addEventListener("click", () => {
+  if (lines.length > 0) {
+    const redoline = lines.pop();
+    if (!(redoline === undefined)) {
+      redoLines.push(redoline);
+      console.log("pushed");
+    }
+    canvas.dispatchEvent(redrawEvent);
+  }
+});
+
+redoButton.addEventListener("click", () => {
+  if (redoLines.length > 0) {
+    const tempLine = redoLines.pop();
+    if (!(tempLine === undefined)) {
+      lines.push(tempLine);
+    }
+    canvas.dispatchEvent(redrawEvent);
   }
 });
 
@@ -54,6 +81,7 @@ canvas.addEventListener("mousedown", (e) => {
 
   currentLine = [];
   lines.push(currentLine);
+  redoLines.length = 0;
 });
 
 canvas.addEventListener("mousemove", (e) => {
