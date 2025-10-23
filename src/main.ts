@@ -19,7 +19,7 @@ const clearButton = document.createElement("button");
 clearButton.innerHTML = "clear";
 document.body.appendChild(clearButton);
 
-// clear button
+// undo button
 const undoButton = document.createElement("button");
 undoButton.innerHTML = "undo";
 document.body.appendChild(undoButton);
@@ -72,7 +72,6 @@ canvas.addEventListener("mouseup", () => {
 });
 
 function redraw() {
-  //console.log(lines);
   if (ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (const line of lines) {
@@ -82,7 +81,6 @@ function redraw() {
         ctx.moveTo(x, y);
         for (const { x, y } of line) {
           ctx.lineTo(x, y);
-          //console.log(x);
         }
         ctx.stroke();
       }
