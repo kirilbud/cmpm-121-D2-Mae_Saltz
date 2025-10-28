@@ -1,5 +1,25 @@
 import "./style.css";
 
+//classes
+class MarkerLine {
+  public points: Array<Cursor> = [];
+  public width: number = 2;
+  public drag(x: number, y: number) {
+    this.points.push({ x: x, y: y, active: true });
+  }
+  public display(ctx: CanvasRenderingContext2D) {
+    if (this.points.length > 0) {
+      ctx.beginPath();
+      const { x, y } = this.points[0];
+      ctx.moveTo(x, y);
+      for (const { x, y } of this.points) {
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+  }
+}
+
 document.body.innerHTML = `
   <h1>Draw a thing (now with stickers!)</h1>
 `;
@@ -30,10 +50,10 @@ redoButton.innerHTML = "redo";
 document.body.appendChild(redoButton);
 
 //line variables
-const lines: Array<Array<Cursor>> = [];
-const redoLines: Array<Array<Cursor>> = [];
+const lines: Array<MarkerLine> = [];
+const redoLines: Array<MarkerLine> = [];
 
-let currentLine: Array<Cursor> = [];
+let currentLine: MarkerLine = new MarkerLine();
 
 const cursor: Cursor = { active: false, x: 0, y: 0 };
 
@@ -79,7 +99,7 @@ canvas.addEventListener("mousedown", (e) => {
   cursor.x = e.offsetX;
   cursor.y = e.offsetY;
 
-  currentLine = [];
+  currentLine = new MarkerLine();
   lines.push(currentLine);
   redoLines.length = 0;
 });
@@ -89,7 +109,7 @@ canvas.addEventListener("mousemove", (e) => {
     cursor.x = e.offsetX;
     cursor.y = e.offsetY;
 
-    currentLine.push({ x: cursor.x, y: cursor.y, active: true });
+    currentLine.drag(cursor.x, cursor.y);
 
     canvas.dispatchEvent(redrawEvent);
   }
@@ -103,15 +123,7 @@ function redraw() {
   if (ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (const line of lines) {
-      if (line.length > 1) {
-        ctx.beginPath();
-        const { x, y } = line[0];
-        ctx.moveTo(x, y);
-        for (const { x, y } of line) {
-          ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-      }
+      line.display(ctx);
     }
   }
 }
