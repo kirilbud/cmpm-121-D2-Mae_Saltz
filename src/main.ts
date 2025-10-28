@@ -21,11 +21,48 @@ class MarkerLine {
   }
 }
 
+class ToolDisplay {
+  public type: string;
+  public text: string = "hello world!";
+  public width: number = 1;
+  public onCanvas: boolean = false;
+  private x: number = 1;
+  private y: number = 1;
+
+  public constructor(type: string) {
+    this.type = type;
+  }
+  public move(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+  public display(ctx: CanvasRenderingContext2D) {
+    if (this.onCanvas) {
+      switch (this.type) {
+        case "line":
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.width / 2, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fillStyle = "black";
+          ctx.fill();
+          ctx.closePath();
+          break;
+        case "text":
+          break;
+        default:
+          break;
+      }
+    }
+  }
+}
+
 document.body.innerHTML = `
   <h1>Draw a thing (now with stickers!)</h1>
 `;
 
 const redrawEvent = new Event("drawing-changed");
+const toolMoveEvent = new Event("tool-moved");
 
 const canvas = document.createElement("canvas");
 canvas.width = 256;
@@ -33,6 +70,7 @@ canvas.height = 256;
 document.body.append(canvas);
 const ctx = canvas.getContext("2d");
 canvas.addEventListener("drawing-changed", redraw);
+canvas.addEventListener("tool-moved", redraw);
 
 // buttons
 
@@ -76,6 +114,7 @@ let currentLine: MarkerLine = new MarkerLine();
 let currentWidth: number = 1;
 
 const cursor: Cursor = { active: false, x: 0, y: 0 };
+const toolDisplay: ToolDisplay = new ToolDisplay("line");
 
 interface Cursor {
   active: boolean;
@@ -115,9 +154,11 @@ redoButton.addEventListener("click", () => {
 
 thickButton.addEventListener("click", () => {
   currentWidth = 5;
+  toolDisplay.width = 5;
 });
 thinButton.addEventListener("click", () => {
   currentWidth = 1;
+  toolDisplay.width = 1;
 });
 
 // Draw
@@ -133,18 +174,26 @@ canvas.addEventListener("mousedown", (e) => {
 });
 
 canvas.addEventListener("mousemove", (e) => {
+  toolDisplay.onCanvas = true;
+  document.body.style.cursor = "none";
   if (cursor.active) {
     cursor.x = e.offsetX;
     cursor.y = e.offsetY;
 
     currentLine.drag(cursor.x, cursor.y);
-
-    canvas.dispatchEvent(redrawEvent);
   }
+  toolDisplay.move(e.offsetX, e.offsetY);
+  canvas.dispatchEvent(toolMoveEvent);
 });
 
 canvas.addEventListener("mouseup", () => {
   cursor.active = false;
+});
+
+canvas.addEventListener("mouseout", () => {
+  document.body.style.cursor = "auto";
+  toolDisplay.onCanvas = false;
+  canvas.dispatchEvent(redrawEvent);
 });
 
 function redraw() {
@@ -153,5 +202,6 @@ function redraw() {
     for (const line of lines) {
       line.display(ctx);
     }
+    toolDisplay.display(ctx);
   }
 }
