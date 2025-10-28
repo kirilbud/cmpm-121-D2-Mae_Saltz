@@ -21,6 +21,21 @@ class MarkerLine {
   }
 }
 
+class DisplayText {
+  private x: number = 0;
+  private y: number = 0;
+  public text = "";
+  public width: number = 1;
+  public drag(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+  public display(ctx: CanvasRenderingContext2D) {
+    ctx.font = "30px monospace";
+    ctx.fillText(this.text, this.x, this.y);
+  }
+}
+
 class ToolDisplay {
   public type: string;
   public text: string = "hello world!";
@@ -49,6 +64,8 @@ class ToolDisplay {
           ctx.closePath();
           break;
         case "text":
+          ctx.font = "30px monospace";
+          ctx.fillText(this.text, this.x, this.y);
           break;
         default:
           break;
@@ -106,11 +123,30 @@ const thinButton = document.createElement("button");
 thinButton.innerHTML = "thin line";
 document.body.appendChild(thinButton);
 
-//line variables
-const lines: Array<MarkerLine> = [];
-const redoLines: Array<MarkerLine> = [];
+//emoji div
+const emojiDiv = document.createElement("div");
+document.body.appendChild(emojiDiv);
 
-let currentLine: MarkerLine = new MarkerLine();
+// raccoon button
+const raccoonButton = document.createElement("button");
+raccoonButton.innerHTML = "🦝";
+document.body.appendChild(raccoonButton);
+
+//owl button
+const owlButton = document.createElement("button");
+owlButton.innerHTML = "🦉";
+document.body.appendChild(owlButton);
+
+//tree buttomn
+const treeButton = document.createElement("button");
+treeButton.innerHTML = "🌲";
+document.body.appendChild(treeButton);
+
+//line variables
+const lines: Array<MarkerLine | DisplayText> = [];
+const redoLines: Array<MarkerLine | DisplayText> = [];
+
+let currentLine: MarkerLine | DisplayText = new MarkerLine();
 let currentWidth: number = 1;
 
 const cursor: Cursor = { active: false, x: 0, y: 0 };
@@ -154,11 +190,31 @@ redoButton.addEventListener("click", () => {
 
 thickButton.addEventListener("click", () => {
   currentWidth = 5;
+  toolDisplay.type = "line";
   toolDisplay.width = 5;
 });
 thinButton.addEventListener("click", () => {
   currentWidth = 1;
+  toolDisplay.type = "line";
   toolDisplay.width = 1;
+});
+
+raccoonButton.addEventListener("click", () => {
+  currentWidth = 1;
+  toolDisplay.type = "text";
+  toolDisplay.text = raccoonButton.textContent;
+});
+
+owlButton.addEventListener("click", () => {
+  currentWidth = 1;
+  toolDisplay.type = "text";
+  toolDisplay.text = owlButton.textContent;
+});
+
+treeButton.addEventListener("click", () => {
+  currentWidth = 1;
+  toolDisplay.type = "text";
+  toolDisplay.text = treeButton.textContent;
 });
 
 // Draw
@@ -167,8 +223,14 @@ canvas.addEventListener("mousedown", (e) => {
   cursor.x = e.offsetX;
   cursor.y = e.offsetY;
 
-  currentLine = new MarkerLine();
-  currentLine.width = currentWidth;
+  if (toolDisplay.type === "text") {
+    currentLine = new DisplayText();
+    currentLine.text = toolDisplay.text;
+  } else {
+    currentLine = new MarkerLine();
+    currentLine.width = currentWidth;
+  }
+  currentLine.drag(cursor.x, cursor.y);
   lines.push(currentLine);
   redoLines.length = 0;
 });
@@ -179,7 +241,6 @@ canvas.addEventListener("mousemove", (e) => {
   if (cursor.active) {
     cursor.x = e.offsetX;
     cursor.y = e.offsetY;
-
     currentLine.drag(cursor.x, cursor.y);
   }
   toolDisplay.move(e.offsetX, e.offsetY);
