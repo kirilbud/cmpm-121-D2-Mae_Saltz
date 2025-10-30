@@ -74,6 +74,32 @@ class ToolDisplay {
   }
 }
 
+interface StickerButton {
+  buttonElement: HTMLButtonElement;
+  text: string;
+}
+
+//so the compiler doesnt complain that they are not set but will be replaced later
+const tempButton = document.createElement("button");
+const stickerButtons: StickerButton[] = [
+  {
+    buttonElement: tempButton,
+    text: "🦝",
+  },
+  {
+    buttonElement: tempButton,
+    text: "🦉",
+  },
+  {
+    buttonElement: tempButton,
+    text: "🌲",
+  },
+  {
+    buttonElement: tempButton,
+    text: "custom",
+  },
+];
+
 document.body.innerHTML = `
   <h1>Draw a thing (now with stickers!)</h1>
 `;
@@ -127,20 +153,33 @@ document.body.appendChild(thinButton);
 const emojiDiv = document.createElement("div");
 document.body.appendChild(emojiDiv);
 
-// raccoon button
-const raccoonButton = document.createElement("button");
-raccoonButton.innerHTML = "🦝";
-document.body.appendChild(raccoonButton);
+//create stickers
+for (const button of stickerButtons) {
+  //connect element and add the button to the page
+  button.buttonElement = document.createElement("button");
+  document.body.appendChild(button.buttonElement);
+  button.buttonElement.innerHTML = button.text;
 
-//owl button
-const owlButton = document.createElement("button");
-owlButton.innerHTML = "🦉";
-document.body.appendChild(owlButton);
+  //add event listener
+  button.buttonElement.addEventListener("click", () => {
+    currentWidth = 1;
+    toolDisplay.type = "text";
+    toolDisplay.text = button.buttonElement.textContent;
+  });
+}
 
-//tree buttomn
-const treeButton = document.createElement("button");
-treeButton.innerHTML = "🌲";
-document.body.appendChild(treeButton);
+//set up custom button
+stickerButtons[stickerButtons.length - 1].buttonElement.addEventListener(
+  "click",
+  () => {
+    const text = prompt("Custom sticker text", "🐉");
+    if (text) {
+      currentWidth = 1;
+      toolDisplay.type = "text";
+      toolDisplay.text = text;
+    }
+  },
+);
 
 //line variables
 const lines: Array<MarkerLine | DisplayText> = [];
@@ -197,24 +236,6 @@ thinButton.addEventListener("click", () => {
   currentWidth = 1;
   toolDisplay.type = "line";
   toolDisplay.width = 1;
-});
-
-raccoonButton.addEventListener("click", () => {
-  currentWidth = 1;
-  toolDisplay.type = "text";
-  toolDisplay.text = raccoonButton.textContent;
-});
-
-owlButton.addEventListener("click", () => {
-  currentWidth = 1;
-  toolDisplay.type = "text";
-  toolDisplay.text = owlButton.textContent;
-});
-
-treeButton.addEventListener("click", () => {
-  currentWidth = 1;
-  toolDisplay.type = "text";
-  toolDisplay.text = treeButton.textContent;
 });
 
 // Draw
