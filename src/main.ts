@@ -112,8 +112,10 @@ canvas.width = 256;
 canvas.height = 256;
 document.body.append(canvas);
 const ctx = canvas.getContext("2d");
-canvas.addEventListener("drawing-changed", redraw);
-canvas.addEventListener("tool-moved", redraw);
+if (ctx) {
+  canvas.addEventListener("drawing-changed", () => redraw(ctx));
+  canvas.addEventListener("tool-moved", () => redraw(ctx));
+}
 
 // buttons
 
@@ -181,6 +183,15 @@ stickerButtons[stickerButtons.length - 1].buttonElement.addEventListener(
   },
 );
 
+//export div
+const exportDiv = document.createElement("div");
+document.body.appendChild(exportDiv);
+
+//Export button
+const exportButton = document.createElement("button");
+exportButton.innerHTML = "Export!";
+document.body.appendChild(exportButton);
+
 //line variables
 const lines: Array<MarkerLine | DisplayText> = [];
 const redoLines: Array<MarkerLine | DisplayText> = [];
@@ -238,6 +249,24 @@ thinButton.addEventListener("click", () => {
   toolDisplay.width = 1;
 });
 
+exportButton.addEventListener("click", () => {
+  const scaledCanvas = document.createElement("canvas");
+  scaledCanvas.width = 1024;
+  scaledCanvas.height = 1024;
+  const newCtx = scaledCanvas.getContext("2d");
+
+  if (newCtx) {
+    newCtx.scale(4, 4);
+    redraw(newCtx);
+  }
+
+  const anchor = document.createElement("a");
+  anchor.href = scaledCanvas.toDataURL("image/png");
+
+  anchor.download = "sketchpad.png";
+  anchor.click();
+});
+
 // Draw
 canvas.addEventListener("mousedown", (e) => {
   cursor.active = true;
@@ -278,12 +307,12 @@ canvas.addEventListener("mouseout", () => {
   canvas.dispatchEvent(redrawEvent);
 });
 
-function redraw() {
-  if (ctx) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+function redraw(thisCTX: CanvasRenderingContext2D) {
+  if (thisCTX) {
+    thisCTX.clearRect(0, 0, canvas.width, canvas.height);
     for (const line of lines) {
-      line.display(ctx);
+      line.display(thisCTX);
     }
-    toolDisplay.display(ctx);
+    toolDisplay.display(thisCTX);
   }
 }
