@@ -125,17 +125,17 @@ document.body.appendChild(div);
 // clear button
 const clearButton = document.createElement("button");
 clearButton.innerHTML = "clear";
-document.body.appendChild(clearButton);
+div.appendChild(clearButton);
 
 // undo button
 const undoButton = document.createElement("button");
 undoButton.innerHTML = "undo";
-document.body.appendChild(undoButton);
+div.appendChild(undoButton);
 
 //redo button
 const redoButton = document.createElement("button");
 redoButton.innerHTML = "redo";
-document.body.appendChild(redoButton);
+div.appendChild(redoButton);
 
 //linediv
 const lineDiv = document.createElement("div");
@@ -144,12 +144,12 @@ document.body.appendChild(lineDiv);
 // thick button
 const thickButton = document.createElement("button");
 thickButton.innerHTML = "thick line";
-document.body.appendChild(thickButton);
+lineDiv.appendChild(thickButton);
 
 //thin button
 const thinButton = document.createElement("button");
 thinButton.innerHTML = "thin line";
-document.body.appendChild(thinButton);
+lineDiv.appendChild(thinButton);
 
 //emoji div
 const emojiDiv = document.createElement("div");
@@ -159,7 +159,7 @@ document.body.appendChild(emojiDiv);
 for (const button of stickerButtons) {
   //connect element and add the button to the page
   button.buttonElement = document.createElement("button");
-  document.body.appendChild(button.buttonElement);
+  emojiDiv.appendChild(button.buttonElement);
   button.buttonElement.innerHTML = button.text;
 
   //add event listener
@@ -310,6 +310,10 @@ canvas.addEventListener("mouseout", () => {
 function redraw(thisCTX: CanvasRenderingContext2D) {
   if (thisCTX) {
     thisCTX.clearRect(0, 0, canvas.width, canvas.height);
+    thisCTX.rect(0, 0, canvas.width, canvas.height);
+    thisCTX.fillStyle = "white";
+    thisCTX.fill();
+
     for (const line of lines) {
       line.display(thisCTX);
     }
