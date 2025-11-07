@@ -26,13 +26,20 @@ class DisplayText {
   private y: number = 0;
   public text = "";
   public width: number = 1;
+  public rotation = 0;
+  public size = 32;
   public drag(x: number, y: number) {
     this.x = x;
     this.y = y;
   }
   public display(ctx: CanvasRenderingContext2D) {
-    ctx.font = "30px monospace";
-    ctx.fillText(this.text, this.x, this.y);
+    ctx.save();
+    ctx.font = this.size.toString() + "px monospace";
+    ctx.translate(this.x - (this.size / 2), this.y + this.size / 2);
+    ctx.rotate(this.rotation);
+    ctx.fillStyle = "black";
+    ctx.fillText(this.text, 0, 0);
+    ctx.restore();
   }
 }
 
@@ -43,7 +50,8 @@ class ToolDisplay {
   public onCanvas: boolean = false;
   private x: number = 1;
   private y: number = 1;
-
+  public rotation = 0;
+  public size = 32;
   public constructor(type: string) {
     this.type = type;
   }
@@ -64,8 +72,13 @@ class ToolDisplay {
           ctx.closePath();
           break;
         case "text":
-          ctx.font = "30px monospace";
-          ctx.fillText(this.text, this.x, this.y);
+          ctx.save();
+          ctx.font = this.size.toString() + "px monospace";
+          ctx.translate(this.x - (this.size / 2), this.y + this.size / 2);
+          ctx.rotate(this.rotation);
+          ctx.fillStyle = "black";
+          ctx.fillText(this.text, 0, 0);
+          ctx.restore();
           break;
         default:
           break;
@@ -183,6 +196,45 @@ stickerButtons[stickerButtons.length - 1].buttonElement.addEventListener(
   },
 );
 
+//text settings div
+const textSettingsDiv = document.createElement("div");
+document.body.appendChild(textSettingsDiv);
+
+const settingsText = document.createElement("p");
+settingsText.textContent = "Sticker Settings:";
+textSettingsDiv.appendChild(settingsText);
+
+const sliderDiv = document.createElement("div");
+document.body.appendChild(sliderDiv);
+
+const rotationText = document.createElement("p");
+rotationText.textContent = "Rotation: ";
+sliderDiv.appendChild(rotationText);
+
+const rotationSlider = document.createElement("input");
+rotationSlider.type = "range";
+rotationSlider.textContent = "rotation";
+rotationSlider.min = (-Math.PI).toString();
+rotationSlider.max = Math.PI.toString();
+rotationSlider.step = "0.0001";
+rotationSlider.value = "0";
+sliderDiv.appendChild(rotationSlider);
+
+const settingsText2 = document.createElement("p");
+settingsText2.textContent = "Size: ";
+sliderDiv.appendChild(settingsText2);
+
+const sizeSlider = document.createElement("input");
+sizeSlider.type = "range";
+sizeSlider.textContent = "rotation";
+sizeSlider.type = "range";
+sizeSlider.textContent = "rotation";
+sizeSlider.min = "5";
+sizeSlider.max = "80";
+sizeSlider.value = "32";
+sizeSlider.step = "1";
+sliderDiv.appendChild(sizeSlider);
+
 //export div
 const exportDiv = document.createElement("div");
 document.body.appendChild(exportDiv);
@@ -276,6 +328,8 @@ canvas.addEventListener("mousedown", (e) => {
   if (toolDisplay.type === "text") {
     currentLine = new DisplayText();
     currentLine.text = toolDisplay.text;
+    currentLine.rotation = toolDisplay.rotation;
+    currentLine.size = toolDisplay.size;
   } else {
     currentLine = new MarkerLine();
     currentLine.width = currentWidth;
@@ -288,6 +342,8 @@ canvas.addEventListener("mousedown", (e) => {
 canvas.addEventListener("mousemove", (e) => {
   toolDisplay.onCanvas = true;
   document.body.style.cursor = "none";
+  toolDisplay.rotation = parseFloat(rotationSlider.value);
+  toolDisplay.size = parseFloat(sizeSlider.value);
   if (cursor.active) {
     cursor.x = e.offsetX;
     cursor.y = e.offsetY;
