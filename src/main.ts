@@ -35,7 +35,9 @@ class DisplayText {
   public display(ctx: CanvasRenderingContext2D) {
     ctx.save();
     ctx.font = this.size.toString() + "px monospace";
-    ctx.translate(this.x - (this.size / 2), this.y + this.size / 2);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.translate(this.x, this.y);
     ctx.rotate(this.rotation);
     ctx.fillStyle = "black";
     ctx.fillText(this.text, 0, 0);
@@ -74,7 +76,9 @@ class ToolDisplay {
         case "text":
           ctx.save();
           ctx.font = this.size.toString() + "px monospace";
-          ctx.translate(this.x - (this.size / 2), this.y + this.size / 2);
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.translate(this.x, this.y);
           ctx.rotate(this.rotation);
           ctx.fillStyle = "black";
           ctx.fillText(this.text, 0, 0);
